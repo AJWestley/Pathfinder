@@ -35,9 +35,9 @@ public class MenuScreen implements Screen {
         this.app = app;
         invis = new JPanel();
 
-        Pathfinder.CURRENT_HEIGHT = Pathfinder.MENU_HEIGHT;
-        Pathfinder.CURRENT_WIDTH = Pathfinder.MENU_WIDTH;
-        Gdx.graphics.setWindowedMode(Pathfinder.MENU_WIDTH, Pathfinder.MENU_HEIGHT);
+//        Pathfinder.CURRENT_HEIGHT = Pathfinder.MENU_HEIGHT;
+//        Pathfinder.CURRENT_WIDTH = Pathfinder.MENU_WIDTH;
+//        Gdx.graphics.setWindowedMode(Pathfinder.MENU_WIDTH, Pathfinder.MENU_HEIGHT);
 
         int createButtonWidth = 150;
         int createButtonHeight = 50;
@@ -121,10 +121,10 @@ public class MenuScreen implements Screen {
     private void createButtonClick () {
 
         if (checkNumberInvalid(gridWidth.getText())) {
-            JOptionPane.showMessageDialog(invis, "Invalid Width! Width must be between 2 and 1000!", "Pathfinder", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(invis, "Invalid Width! Width must be between 2 and 100!", "Pathfinder", JOptionPane.ERROR_MESSAGE);
         }
         else if (checkNumberInvalid(gridHeight.getText())) {
-            JOptionPane.showMessageDialog(invis, "Invalid Height! Height must be between 2 and 1000!", "Pathfinder", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(invis, "Invalid Height! Height must be between 2 and 100!", "Pathfinder", JOptionPane.ERROR_MESSAGE);
         }
         else app.setScreen(new GridCreationScreen(app, Integer.parseInt(gridWidth.getText()), Integer.parseInt(gridHeight.getText())));
 
@@ -149,7 +149,7 @@ public class MenuScreen implements Screen {
             return true;
         }
 
-        return numerical < 2 || numerical > 1000;
+        return numerical < 2 || numerical > 100;
     }
 
     @Override

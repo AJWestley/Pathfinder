@@ -14,8 +14,8 @@ public class Pathfinder extends Game {
 	public static final int GRID_SCREEN_WIDTH = 1080;
 	public static final int GRID_SCREEN_HEIGHT = 720;
 
-	public static int CURRENT_WIDTH = MENU_WIDTH;
-	public static int CURRENT_HEIGHT = MENU_HEIGHT;
+	public static int CURRENT_WIDTH = GRID_SCREEN_WIDTH;
+	public static int CURRENT_HEIGHT = GRID_SCREEN_HEIGHT;
 
 	public ScreenCamera camera;
 	public SpriteBatch batch;
