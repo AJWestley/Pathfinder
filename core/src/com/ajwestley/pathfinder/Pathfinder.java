@@ -11,6 +11,8 @@ public class Pathfinder extends Game {
 
 	public static final int MENU_WIDTH = 500;
 	public static final int MENU_HEIGHT = 720;
+	public static final int GRID_SCREEN_WIDTH = 1080;
+	public static final int GRID_SCREEN_HEIGHT = 720;
 
 	public static int CURRENT_WIDTH = MENU_WIDTH;
 	public static int CURRENT_HEIGHT = MENU_HEIGHT;

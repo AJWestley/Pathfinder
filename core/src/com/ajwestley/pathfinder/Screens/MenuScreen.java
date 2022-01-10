@@ -126,7 +126,7 @@ public class MenuScreen implements Screen {
         else if (checkNumberInvalid(gridHeight.getText())) {
             JOptionPane.showMessageDialog(invis, "Invalid Height! Height must be between 2 and 1000!", "Pathfinder", JOptionPane.ERROR_MESSAGE);
         }
-        else create.setText("Created");
+        else app.setScreen(new GridCreationScreen(app, Integer.parseInt(gridWidth.getText()), Integer.parseInt(gridHeight.getText())));
 
         create.addListener(new ClickListener() {
             @Override
