@@ -1,0 +1,1 @@
+# Pathfinder is an application which allows the user to select the size of a 2D grid, then subsequently create a starting point, a destination, as well as obstacles and the program will visualise the process of finding the shortest path between the two points.
