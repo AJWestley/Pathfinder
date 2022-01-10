@@ -6,18 +6,31 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MenuScreen implements Screen {
 
+    private final int xGridWidth = Pathfinder.CURRENT_WIDTH / 2;
+    private final int yGridWidth = 400;
+
     BitmapFont title;
     BitmapFont create;
+    Stage stage;
+    TextField gridWidth;
+    TextField gridHeight;
 
     Pathfinder app;
 
     public MenuScreen (Pathfinder app) {
 
         this.app = app;
+
+        stage = new Stage();
+
 
         Pathfinder.CURRENT_HEIGHT = Pathfinder.MENU_HEIGHT;
         Pathfinder.CURRENT_WIDTH = Pathfinder.MENU_WIDTH;
