@@ -7,6 +7,8 @@ import com.ajwestley.pathfinder.Pathfinder;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.height = Pathfinder.MENU_HEIGHT;
+		config.width = Pathfinder.MENU_WIDTH;
 		new LwjglApplication(new Pathfinder(), config);
 	}
 }
