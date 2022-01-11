@@ -15,6 +15,7 @@ public class PathGrid {
     boolean hasStart;
     boolean hasDestination;
     public boolean complete;
+    public boolean nosolution;
 
     public ArrayList<Path> paths;
 
@@ -28,16 +29,8 @@ public class PathGrid {
         paths = new ArrayList<Path>();
         this.width = width;
         this.height = height;
-        hasStart = false;
-        hasDestination = false;
 
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                grid[i][j] = EMPTY;
-            }
-        }
-
-        complete = false;
+        clear();
 
     }
 
@@ -101,6 +94,11 @@ public class PathGrid {
 
     public void progress() {
 
+        if (paths.isEmpty()) {
+            complete = true;
+            nosolution = true;
+        }
+
         if (!complete) {
             ArrayList<Path> toBeAdded = new ArrayList<Path>();
             ArrayList<Path> toBeRemoved = new ArrayList<Path>();
@@ -146,6 +144,33 @@ public class PathGrid {
             paths.addAll(toBeAdded);
 
         }
+
+    }
+
+    public void clear() {
+        hasStart = false;
+        hasDestination = false;
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                grid[i][j] = EMPTY;
+            }
+        }
+
+        nosolution = false;
+        complete = false;
+    }
+
+    public void softClear() {
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (grid[i][j] == ACTIVE || grid[i][j] == PATH || grid[i][j] == VISITED) grid[i][j] = EMPTY;
+            }
+        }
+
+        nosolution = false;
+        complete = false;
 
     }
 }
