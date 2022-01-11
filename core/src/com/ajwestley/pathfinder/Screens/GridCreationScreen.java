@@ -2,6 +2,7 @@ package com.ajwestley.pathfinder.Screens;
 
 import com.ajwestley.pathfinder.Pathfinder;
 import com.ajwestley.pathfinder.tools.PathGrid;
+import com.ajwestley.pathfinder.tools.ScreenCamera;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,8 +19,6 @@ public class GridCreationScreen implements Screen {
 
     PathGrid grid;
     Texture empty;
-    Texture active;
-    Texture visited;
     Texture obstacle;
     Texture start;
     Texture destination;
@@ -32,17 +31,16 @@ public class GridCreationScreen implements Screen {
 
         this.app = app;
 
-//        Pathfinder.CURRENT_HEIGHT = Pathfinder.GRID_SCREEN_HEIGHT;
-//        Pathfinder.CURRENT_WIDTH = Pathfinder.GRID_SCREEN_WIDTH;
-//        Gdx.graphics.setWindowedMode(Pathfinder.GRID_SCREEN_WIDTH, Pathfinder.GRID_SCREEN_HEIGHT);
+        Pathfinder.CURRENT_HEIGHT = Pathfinder.GRID_SCREEN_HEIGHT;
+        Pathfinder.CURRENT_WIDTH = Pathfinder.GRID_SCREEN_WIDTH;
+        Gdx.graphics.setWindowedMode(Pathfinder.GRID_SCREEN_WIDTH, Pathfinder.GRID_SCREEN_HEIGHT);
+        app.camera = new ScreenCamera(Pathfinder.CURRENT_WIDTH, Pathfinder.CURRENT_HEIGHT);
 
         grid = new PathGrid(width, height);
 
         coOrds = new int[width][height][2];
         determineCoOrds();
 
-        active = new Texture(Gdx.files.internal("activespace.png"));
-        visited = new Texture(Gdx.files.internal("visitedspace.png"));
         obstacle = new Texture(Gdx.files.internal("obstacle.png"));
         empty = new Texture(Gdx.files.internal("empty.png"));
         start = new Texture(Gdx.files.internal("start.png"));
@@ -59,6 +57,14 @@ public class GridCreationScreen implements Screen {
     public void render(float delta) {
 
         ScreenUtils.clear(1, 1, 1, 1);
+
+        int x = checkMouseOver()[0], y = checkMouseOver()[1];
+
+        if (x != -1 && y != -1 && Gdx.input.isTouched()) {
+
+            grid.addObstacle(x, y);
+
+        }
 
         app.batch.begin();
 
@@ -89,9 +95,7 @@ public class GridCreationScreen implements Screen {
             batch.draw(inBorder, coOrds[i][0][0] - borderSize, coOrds[i][0][1] - borderSize, borderSize, overallHeight);
             for (int j = 0; j < grid.height; j++) {
                 batch.draw(inBorder, coOrds[0][j][0] - borderSize, coOrds[0][j][1] - borderSize, overallWidth, borderSize);
-                if (grid.grid[i][j] == PathGrid.ACTIVE) batch.draw(active, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
-                else if (grid.grid[i][j] == PathGrid.VISITED) batch.draw(visited, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
-                else if (grid.grid[i][j] == PathGrid.OBSTACLE) batch.draw(obstacle, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
+                if (grid.grid[i][j] == PathGrid.OBSTACLE) batch.draw(obstacle, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
                 else if (grid.grid[i][j] == PathGrid.START_POINT) batch.draw(start, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
                 else if (grid.grid[i][j] == PathGrid.DESTINATION_POINT) batch.draw(destination, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
                 else batch.draw(empty, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
@@ -130,6 +134,32 @@ public class GridCreationScreen implements Screen {
 
             }
         }
+
+    }
+
+    private int[] checkMouseOver() {
+
+        int[] coOrds = new int[2];
+        coOrds[0] = -1;
+        coOrds[1] = -1;
+
+        for (int i = 0; i < grid.width; i++) {
+            for (int j = 0; j < grid.height; j++) {
+
+                if (app.camera.getInput().x > this.coOrds[i][j][0] &&
+                        app.camera.getInput().x < (this.coOrds[i][j][0] + cellDimensions) &&
+                        app.camera.getInput().y > this.coOrds[i][j][1] &&
+                        app.camera.getInput().y < this.coOrds[i][j][1] + cellDimensions) {
+
+                    coOrds[0] = i;
+                    coOrds[1] = j;
+
+                }
+
+            }
+        }
+
+        return coOrds;
 
     }
 }

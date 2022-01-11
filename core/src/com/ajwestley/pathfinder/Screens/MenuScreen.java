@@ -1,6 +1,7 @@
 package com.ajwestley.pathfinder.Screens;
 
 import com.ajwestley.pathfinder.Pathfinder;
+import com.ajwestley.pathfinder.tools.ScreenCamera;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -35,9 +36,10 @@ public class MenuScreen implements Screen {
         this.app = app;
         invis = new JPanel();
 
-//        Pathfinder.CURRENT_HEIGHT = Pathfinder.MENU_HEIGHT;
-//        Pathfinder.CURRENT_WIDTH = Pathfinder.MENU_WIDTH;
-//        Gdx.graphics.setWindowedMode(Pathfinder.MENU_WIDTH, Pathfinder.MENU_HEIGHT);
+        Pathfinder.CURRENT_HEIGHT = Pathfinder.MENU_HEIGHT;
+        Pathfinder.CURRENT_WIDTH = Pathfinder.MENU_WIDTH;
+        Gdx.graphics.setWindowedMode(Pathfinder.MENU_WIDTH, Pathfinder.MENU_HEIGHT);
+        app.camera = new ScreenCamera(Pathfinder.CURRENT_WIDTH, Pathfinder.CURRENT_HEIGHT);
 
         int createButtonWidth = 150;
         int createButtonHeight = 50;
@@ -99,6 +101,7 @@ public class MenuScreen implements Screen {
         GlyphLayout title = new GlyphLayout(this.title, "Pathfinder");
         GlyphLayout gridWidth = new GlyphLayout(this.fields, "Grid Width:");
         GlyphLayout gridHeight = new GlyphLayout(this.fields, "Grid Height:");
+
         float titleX = Pathfinder.CURRENT_WIDTH / 2f - title.width / 2f;
         float titleY = Pathfinder.CURRENT_HEIGHT - 50f;
         float gridWidthX = 50;
@@ -113,6 +116,7 @@ public class MenuScreen implements Screen {
         this.title.draw(app.batch, title, (int) titleX, (int) titleY);
         this.fields.draw(app.batch, gridWidth, (int) gridWidthX, (int) gridWidthY);
         this.fields.draw(app.batch, gridHeight, (int) gridHeightX, (int) gridHeightY);
+
         stage.draw();
 
         app.batch.end();
