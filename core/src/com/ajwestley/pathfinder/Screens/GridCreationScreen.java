@@ -10,11 +10,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import javax.swing.*;
@@ -33,15 +28,24 @@ public class GridCreationScreen implements Screen {
     int startButtonY = Pathfinder.CURRENT_HEIGHT - 250;
     int endButtonY = Pathfinder.CURRENT_HEIGHT - 350;
     int eraseButtonY = Pathfinder.CURRENT_HEIGHT - 450;
-    int buttonWidth = 240, buttonHeight = 60;
+    int buttonWidth = 200, buttonHeight = 60;
     int simulateButtonX = 80, simulateButtonY = 20;
     int simulateButtonWidth = 150, simulateButtonHeight = 60;
+
+    private final float simWaitBase;
+    int simWaitMultiplier;
+    float waitTime;
+    float timePassed;
+    boolean simStarted;
 
     PathGrid grid;
     Texture empty;
     Texture obstacle;
     Texture start;
     Texture destination;
+    Texture active;
+    Texture visited;
+    Texture showPath;
     Texture outBorder;
     Texture inBorder;
     Texture selectedEraseButton;
@@ -60,6 +64,12 @@ public class GridCreationScreen implements Screen {
 
         this.app = app;
         invis = new JPanel();
+
+        simWaitBase = 0.5f;
+        simWaitMultiplier = 1;
+        waitTime = simWaitBase / simWaitMultiplier;
+        timePassed = 0;
+        simStarted = false;
 
         Pathfinder.CURRENT_HEIGHT = Pathfinder.GRID_SCREEN_HEIGHT;
         Pathfinder.CURRENT_WIDTH = Pathfinder.GRID_SCREEN_WIDTH;
@@ -88,6 +98,10 @@ public class GridCreationScreen implements Screen {
         btnText = new BitmapFont(Gdx.files.internal("fonts/font30.fnt"));
         btnText.setColor(Color.BLACK);
 
+        active = new Texture(Gdx.files.internal("activespace.png"));
+        visited = new Texture(Gdx.files.internal("visitedspace.png"));
+        showPath = new Texture(Gdx.files.internal("path.png"));
+
     }
 
     @Override
@@ -96,16 +110,23 @@ public class GridCreationScreen implements Screen {
     @Override
     public void render(float delta) {
 
+        if (simStarted) timePassed += delta;
+
         ScreenUtils.clear(1, 1, 1, 1);
 
         if (app.camera.getInput().x > simulateButtonX && app.camera.getInput().x < (simulateButtonX + simulateButtonWidth) &&
                 app.camera.getInput().y > simulateButtonY && app.camera.getInput().y < (simulateButtonY + simulateButtonHeight) &&
                 Gdx.input.justTouched()) {
 
-            if (grid.isValidGrid()) JOptionPane.showMessageDialog(invis, "Valid", "Pathfinder", JOptionPane.ERROR_MESSAGE);
+            if (grid.isValidGrid()) {
+                simStarted = true;
+                grid.begin();
+            }
             else JOptionPane.showMessageDialog(invis, "Invalid Grid! Grid must have a Start point and an End point.", "Pathfinder", JOptionPane.ERROR_MESSAGE);
 
         }
+
+        move();
 
         GlyphLayout obstacle = new GlyphLayout(btnText, "Obstacle");
         GlyphLayout start = new GlyphLayout(btnText, "Start Point");
@@ -178,6 +199,9 @@ public class GridCreationScreen implements Screen {
                 else if (grid.grid[i][j] == PathGrid.START_POINT) batch.draw(start, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
                 else if (grid.grid[i][j] == PathGrid.DESTINATION_POINT) batch.draw(destination, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
                 else if (grid.grid[i][j] == PathGrid.EMPTY) batch.draw(empty, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
+                else if (grid.grid[i][j] == PathGrid.ACTIVE) batch.draw(active, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
+                else if (grid.grid[i][j] == PathGrid.VISITED) batch.draw(visited, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
+                else if (grid.grid[i][j] == PathGrid.PATH) batch.draw(showPath, coOrds[i][j][0], coOrds[i][j][1], cellDimensions, cellDimensions);
 
             }
         }
@@ -195,7 +219,7 @@ public class GridCreationScreen implements Screen {
         else if (grid.width >= 30 || grid.height >= 20) borderSize = 2;
         else borderSize = 3;
 
-        int maxHeight = Pathfinder.CURRENT_HEIGHT - 100, maxWidth = Pathfinder.CURRENT_WIDTH - 250;
+        int maxHeight = Pathfinder.CURRENT_HEIGHT - 100, maxWidth = Pathfinder.CURRENT_WIDTH - 350;
         int cellWidth = (maxWidth - borderSize * (grid.width + 1)) / grid.width;
         int cellHeight = (maxHeight - borderSize * (grid.height + 1)) / grid.height;
         cellDimensions = Math.min(cellWidth, cellHeight);
@@ -268,6 +292,17 @@ public class GridCreationScreen implements Screen {
             selected = PathGrid.EMPTY;
         }
 
+
+    }
+
+    private void move() {
+
+        if (timePassed >= waitTime) {
+
+            timePassed = 0;
+            grid.progress();
+
+        }
 
     }
 }
