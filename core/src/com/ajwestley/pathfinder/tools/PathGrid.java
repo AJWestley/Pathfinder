@@ -135,8 +135,8 @@ public class PathGrid {
 
                         }
 
-                        toBeAdded.add(temp);
                         if (complete) break;
+                        toBeAdded.add(temp);
                     }
                 }
                 if (complete) break;

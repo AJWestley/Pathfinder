@@ -31,6 +31,8 @@ public class GridCreationScreen implements Screen {
     int buttonWidth = 200, buttonHeight = 60;
     int simulateButtonX = 80, simulateButtonY = 20;
     int simulateButtonWidth = 150, simulateButtonHeight = 60;
+    int clearButtonWidth = 100, clearButtonHeight = 40;
+    int clearButtonX = Pathfinder.GRID_SCREEN_WIDTH - clearButtonWidth - 10, clearButtonY = 5;
 
     private final float simWaitBase;
     int simWaitMultiplier;
@@ -55,6 +57,8 @@ public class GridCreationScreen implements Screen {
     Texture unselectedButton;
     Texture simulateUnselected;
     Texture simulateSelected;
+    Texture clearSelected;
+    Texture clearUnselected;
     BitmapFont btnText;
     JPanel invis;
 
@@ -95,6 +99,8 @@ public class GridCreationScreen implements Screen {
         unselectedButton = new Texture(Gdx.files.internal("unselectedButton.png"));
         simulateSelected = new Texture(Gdx.files.internal("simulateSelected.png"));
         simulateUnselected = new Texture(Gdx.files.internal("simulateUnselected.png"));
+        clearSelected = new Texture(Gdx.files.internal("clearSelected.png"));
+        clearUnselected = new Texture(Gdx.files.internal("clearUnselected.png"));
         btnText = new BitmapFont(Gdx.files.internal("fonts/font30.fnt"));
         btnText.setColor(Color.BLACK);
 
@@ -110,6 +116,8 @@ public class GridCreationScreen implements Screen {
     @Override
     public void render(float delta) {
 
+        if (grid.complete) simStarted = false;
+
         if (simStarted) timePassed += delta;
 
         ScreenUtils.clear(1, 1, 1, 1);
@@ -120,11 +128,22 @@ public class GridCreationScreen implements Screen {
 
             if (grid.isValidGrid()) {
                 simStarted = true;
+                grid.complete = false;
                 grid.begin();
             }
             else JOptionPane.showMessageDialog(invis, "Invalid Grid! Grid must have a Start point and an End point.", "Pathfinder", JOptionPane.ERROR_MESSAGE);
 
         }
+
+        if (app.camera.getInput().x > clearButtonX && app.camera.getInput().x < (clearButtonX + clearButtonWidth) &&
+                app.camera.getInput().y > clearButtonY && app.camera.getInput().y < (clearButtonY + clearButtonHeight) &&
+                Gdx.input.justTouched()) {
+
+            app.setScreen(new MenuScreen(app));
+
+        }
+
+
 
         move();
 
@@ -150,25 +169,37 @@ public class GridCreationScreen implements Screen {
 
         drawGrid(app.batch);
 
-        if (selected == PathGrid.OBSTACLE) app.batch.draw(selectedObstacleButton, buttonX, obstacleButtonY, buttonWidth, buttonHeight);
-        else app.batch.draw(unselectedButton, buttonX, obstacleButtonY, buttonWidth, buttonHeight);
-        if (selected == PathGrid.START_POINT) app.batch.draw(selectedStartButton, buttonX, startButtonY, buttonWidth, buttonHeight);
-        else app.batch.draw(unselectedButton, buttonX, startButtonY, buttonWidth, buttonHeight);
-        if (selected == PathGrid.DESTINATION_POINT) app.batch.draw(selectedEndButton, buttonX, endButtonY, buttonWidth, buttonHeight);
-        else app.batch.draw(unselectedButton, buttonX, endButtonY, buttonWidth, buttonHeight);
-        if (selected == PathGrid.EMPTY) app.batch.draw(selectedEraseButton, buttonX, eraseButtonY, buttonWidth, buttonHeight);
-        else app.batch.draw(unselectedButton, buttonX, eraseButtonY, buttonWidth, buttonHeight);
+        if (!simStarted) {
+            if (selected == PathGrid.OBSTACLE)
+                app.batch.draw(selectedObstacleButton, buttonX, obstacleButtonY, buttonWidth, buttonHeight);
+            else app.batch.draw(unselectedButton, buttonX, obstacleButtonY, buttonWidth, buttonHeight);
+            if (selected == PathGrid.START_POINT)
+                app.batch.draw(selectedStartButton, buttonX, startButtonY, buttonWidth, buttonHeight);
+            else app.batch.draw(unselectedButton, buttonX, startButtonY, buttonWidth, buttonHeight);
+            if (selected == PathGrid.DESTINATION_POINT)
+                app.batch.draw(selectedEndButton, buttonX, endButtonY, buttonWidth, buttonHeight);
+            else app.batch.draw(unselectedButton, buttonX, endButtonY, buttonWidth, buttonHeight);
+            if (selected == PathGrid.EMPTY)
+                app.batch.draw(selectedEraseButton, buttonX, eraseButtonY, buttonWidth, buttonHeight);
+            else app.batch.draw(unselectedButton, buttonX, eraseButtonY, buttonWidth, buttonHeight);
 
-        btnText.draw(app.batch, obstacle, buttonX + 20, obstacleButtonY + buttonHeight / 2f + obstacle.height / 2);
-        btnText.draw(app.batch, start, buttonX + 20, startButtonY + buttonHeight / 2f + start.height / 2);
-        btnText.draw(app.batch, destination, buttonX + 20, endButtonY + buttonHeight / 2f + destination.height / 2);
-        btnText.draw(app.batch, erase, buttonX + 20, eraseButtonY + buttonHeight / 2f + erase.height / 2);
+            btnText.draw(app.batch, obstacle, buttonX + 20, obstacleButtonY + buttonHeight / 2f + obstacle.height / 2);
+            btnText.draw(app.batch, start, buttonX + 20, startButtonY + buttonHeight / 2f + start.height / 2);
+            btnText.draw(app.batch, destination, buttonX + 20, endButtonY + buttonHeight / 2f + destination.height / 2);
+            btnText.draw(app.batch, erase, buttonX + 20, eraseButtonY + buttonHeight / 2f + erase.height / 2);
 
-        if (app.camera.getInput().x > simulateButtonX && app.camera.getInput().x < (simulateButtonX + simulateButtonWidth) &&
-                app.camera.getInput().y > simulateButtonY && app.camera.getInput().y < (simulateButtonY + simulateButtonHeight))    {
-            app.batch.draw(simulateSelected, simulateButtonX, simulateButtonY, simulateButtonWidth, simulateButtonHeight);
+            if (app.camera.getInput().x > simulateButtonX && app.camera.getInput().x < (simulateButtonX + simulateButtonWidth) &&
+                    app.camera.getInput().y > simulateButtonY && app.camera.getInput().y < (simulateButtonY + simulateButtonHeight)) {
+                app.batch.draw(simulateSelected, simulateButtonX, simulateButtonY, simulateButtonWidth, simulateButtonHeight);
+            } else
+                app.batch.draw(simulateUnselected, simulateButtonX, simulateButtonY, simulateButtonWidth, simulateButtonHeight);
+
+            if (app.camera.getInput().x > clearButtonX && app.camera.getInput().x < (clearButtonX + clearButtonWidth) &&
+                    app.camera.getInput().y > clearButtonY && app.camera.getInput().y < (clearButtonY + clearButtonHeight)) {
+                app.batch.draw(clearSelected, clearButtonX, clearButtonY, clearButtonWidth, clearButtonHeight);
+            } else
+                app.batch.draw(clearUnselected, clearButtonX, clearButtonY, clearButtonWidth, clearButtonHeight);
         }
-        else app.batch.draw(simulateUnselected, simulateButtonX, simulateButtonY, simulateButtonWidth, simulateButtonHeight);
 
         app.batch.end();
 
@@ -267,31 +298,31 @@ public class GridCreationScreen implements Screen {
     }
 
     private void checkButtonClicked() {
+        if (!simStarted) {
+            if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
+                    app.camera.getInput().y > obstacleButtonY && app.camera.getInput().y < (obstacleButtonY + buttonHeight) &&
+                    Gdx.input.justTouched()) {
+                selected = PathGrid.OBSTACLE;
+            }
 
-        if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
-                app.camera.getInput().y > obstacleButtonY && app.camera.getInput().y < (obstacleButtonY + buttonHeight) &&
-                Gdx.input.justTouched()) {
-            selected = PathGrid.OBSTACLE;
+            if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
+                    app.camera.getInput().y > startButtonY && app.camera.getInput().y < (startButtonY + buttonHeight) &&
+                    Gdx.input.justTouched()) {
+                selected = PathGrid.START_POINT;
+            }
+
+            if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
+                    app.camera.getInput().y > endButtonY && app.camera.getInput().y < (endButtonY + buttonHeight) &&
+                    Gdx.input.justTouched()) {
+                selected = PathGrid.DESTINATION_POINT;
+            }
+
+            if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
+                    app.camera.getInput().y > eraseButtonY && app.camera.getInput().y < (eraseButtonY + buttonHeight) &&
+                    Gdx.input.justTouched()) {
+                selected = PathGrid.EMPTY;
+            }
         }
-
-        if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
-                app.camera.getInput().y > startButtonY && app.camera.getInput().y < (startButtonY + buttonHeight) &&
-                Gdx.input.justTouched()) {
-            selected = PathGrid.START_POINT;
-        }
-
-        if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
-                app.camera.getInput().y > endButtonY && app.camera.getInput().y < (endButtonY + buttonHeight) &&
-                Gdx.input.justTouched()) {
-            selected = PathGrid.DESTINATION_POINT;
-        }
-
-        if (app.camera.getInput().x > buttonX && app.camera.getInput().x < (buttonX + buttonWidth) &&
-                app.camera.getInput().y > eraseButtonY && app.camera.getInput().y < (eraseButtonY + buttonHeight) &&
-                Gdx.input.justTouched()) {
-            selected = PathGrid.EMPTY;
-        }
-
 
     }
 
