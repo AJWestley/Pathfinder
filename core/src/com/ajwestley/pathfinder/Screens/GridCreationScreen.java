@@ -35,6 +35,11 @@ public class GridCreationScreen implements Screen {
     int clearButtonX = Pathfinder.GRID_SCREEN_WIDTH - clearButtonWidth - 10, clearButtonY = Pathfinder.GRID_SCREEN_HEIGHT - clearButtonHeight - 10;
     int menuButtonWidth = 100, menuButtonHeight = 40;
     int menuButtonX = Pathfinder.GRID_SCREEN_WIDTH - menuButtonWidth - 10, menuButtonY = 10;
+    int speedButtonDimensions = 40;
+    int speedButtonY = Pathfinder.GRID_SCREEN_HEIGHT - speedButtonDimensions - 10;
+    int pausePlayX = 100;
+    int speedChangeX = 200;
+    int stopX = 300;
 
     private final float simWaitBase;
     int simWaitMultiplier;
@@ -42,6 +47,7 @@ public class GridCreationScreen implements Screen {
     float timePassed;
     boolean simStarted;
     boolean editingEnabled;
+    boolean paused;
 
     PathGrid grid;
     Texture empty;
@@ -64,6 +70,13 @@ public class GridCreationScreen implements Screen {
     Texture clearUnselected;
     Texture menuSelected;
     Texture menuUnselected;
+    Texture x1;
+    Texture x2;
+    Texture x3;
+    Texture stopSelected;
+    Texture stopUnselected;
+    Texture pauseButton;
+    Texture playButton;
     BitmapFont btnText;
     JPanel invis;
 
@@ -74,12 +87,13 @@ public class GridCreationScreen implements Screen {
         this.app = app;
         invis = new JPanel();
 
-        simWaitBase = 0.1f;
+        simWaitBase = 0.3f;
         simWaitMultiplier = 1;
         waitTime = simWaitBase / simWaitMultiplier;
         timePassed = 0;
         simStarted = false;
         editingEnabled = true;
+        paused = false;
 
         Pathfinder.CURRENT_HEIGHT = Pathfinder.GRID_SCREEN_HEIGHT;
         Pathfinder.CURRENT_WIDTH = Pathfinder.GRID_SCREEN_WIDTH;
@@ -112,6 +126,13 @@ public class GridCreationScreen implements Screen {
         clearUnselected = new Texture(Gdx.files.internal("clearUnselected.png"));
         menuSelected = new Texture(Gdx.files.internal("menuSelected.png"));
         menuUnselected = new Texture(Gdx.files.internal("menuUnselected.png"));
+        pauseButton = new Texture(Gdx.files.internal("pause.png"));
+        playButton = new Texture(Gdx.files.internal("play.png"));
+        stopSelected = new Texture(Gdx.files.internal("stopselected.png"));
+        stopUnselected = new Texture(Gdx.files.internal("stopunselected.png"));
+        x1 = new Texture(Gdx.files.internal("x1.png"));
+        x2 = new Texture(Gdx.files.internal("x2.png"));
+        x3 = new Texture(Gdx.files.internal("x3.png"));
         btnText = new BitmapFont(Gdx.files.internal("fonts/font30.fnt"));
         btnText.setColor(Color.BLACK);
 
@@ -123,15 +144,41 @@ public class GridCreationScreen implements Screen {
     @Override
     public void render(float delta) {
 
+        ScreenUtils.clear(1, 1, 1, 1);
+
         if (grid.complete) simStarted = false;
 
         if (simStarted) {
-            timePassed += delta;
-            editingEnabled = false;
-        }
-        else editingEnabled = true;
 
-        ScreenUtils.clear(1, 1, 1, 1);
+            if (!paused) timePassed += delta;
+            editingEnabled = false;
+
+            waitTime = simWaitBase / simWaitMultiplier;
+
+            if (app.camera.getInput().x > stopX && app.camera.getInput().x < (stopX + speedButtonDimensions) &&
+                    app.camera.getInput().y > speedButtonY && app.camera.getInput().y < (speedButtonY + speedButtonDimensions)
+                    && Gdx.input.justTouched()) {
+                simStarted = false;
+                grid.softClear();
+            }
+
+            if (app.camera.getInput().x > pausePlayX && app.camera.getInput().x < (pausePlayX + speedButtonDimensions) &&
+                    app.camera.getInput().y > speedButtonY && app.camera.getInput().y < (speedButtonY + speedButtonDimensions)
+                    && Gdx.input.justTouched()) {
+                paused = !paused;
+            }
+
+            if (app.camera.getInput().x > speedChangeX && app.camera.getInput().x < (speedChangeX + speedButtonDimensions) &&
+                    app.camera.getInput().y > speedButtonY && app.camera.getInput().y < (speedButtonY + speedButtonDimensions)
+                    && Gdx.input.justTouched()) {
+                simWaitMultiplier *= 2;
+                if (simWaitMultiplier > 4) simWaitMultiplier = 1;
+            }
+        }
+        else {
+            editingEnabled = true;
+            paused = false;
+            }
 
         if (app.camera.getInput().x > simulateButtonX && app.camera.getInput().x < (simulateButtonX + simulateButtonWidth) &&
                 app.camera.getInput().y > simulateButtonY && app.camera.getInput().y < (simulateButtonY + simulateButtonHeight) &&
@@ -227,6 +274,22 @@ public class GridCreationScreen implements Screen {
                 app.batch.draw(menuSelected, menuButtonX, menuButtonY, menuButtonWidth, menuButtonHeight);
             } else
                 app.batch.draw(menuUnselected, menuButtonX, menuButtonY, menuButtonWidth, menuButtonHeight);
+        }
+        else {
+
+            if (simWaitMultiplier == 1) app.batch.draw(x1, speedChangeX, speedButtonY, speedButtonDimensions, speedButtonDimensions);
+            else if (simWaitMultiplier == 2) app.batch.draw(x2, speedChangeX, speedButtonY, speedButtonDimensions, speedButtonDimensions);
+            else app.batch.draw(x3, speedChangeX, speedButtonY, speedButtonDimensions, speedButtonDimensions);
+
+            if (paused) app.batch.draw(playButton, pausePlayX, speedButtonY, speedButtonDimensions, speedButtonDimensions);
+            else app.batch.draw(pauseButton, pausePlayX, speedButtonY, speedButtonDimensions, speedButtonDimensions);
+
+            if (app.camera.getInput().x > stopX && app.camera.getInput().x < (stopX + speedButtonDimensions) &&
+                    app.camera.getInput().y > speedButtonY && app.camera.getInput().y < (speedButtonY + speedButtonDimensions)) {
+                app.batch.draw(stopSelected, stopX, speedButtonY, speedButtonDimensions, speedButtonDimensions);
+            } else
+                app.batch.draw(stopUnselected, stopX, speedButtonY, speedButtonDimensions, speedButtonDimensions);
+
         }
 
         app.batch.end();
@@ -360,11 +423,11 @@ public class GridCreationScreen implements Screen {
 
     private void move() {
 
-        if (timePassed >= waitTime) {
+        if (timePassed >= waitTime && !paused) {
 
             timePassed = 0;
             grid.progress();
-            if (grid.nosolution) {
+            if (grid.noSolution) {
                 JOptionPane.showMessageDialog(invis, "No Solution.", "Pathfinder", JOptionPane.ERROR_MESSAGE);
             }
 
